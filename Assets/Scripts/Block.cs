@@ -74,10 +74,41 @@ public class Block : MonoBehaviour
         updateColor ();
     }
 
+    // 1マス落下できるかどうか ⇔ 下にブロックがあるかどうか
+    public bool canfall (Field field, int offset_x, int offset_y)
+    {
+        var tmp_x = this.x + offset_x;
+        var tmp_y = this.y + offset_y - 1;
+
+        // 一番下の場合はfalse
+        if (tmp_y < 0)
+        {
+            return false;
+        }
+
+        return field.getblock (tmp_x, tmp_y) == null;
+    }
+
+    // 設置
+    public void place (Field field, int offset_x, int offset_y)
+    {
+        // テトリミノからフィールドに移動
+        this.gameObject.transform.SetParent (field.GetComponent <RectTransform> (), false);
+
+        // テトリミノの位置分移動
+        this.x += offset_x;
+        this.y += offset_y;
+        
+        // 位置更新
+        updatePos ();
+
+        field.setblock (this.x, this.y, this);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame

@@ -121,6 +121,40 @@ public class Tetrimino : MonoBehaviour
         }
     }
 
+    // 1マス落下できるかどうか
+    public bool canfall (Field field)
+    {
+        // テトリミノを構成するブロックのうち1つでも落下不可能ならばテトリミノは落下不可能
+        foreach (Block elem in blocks)
+        {
+            if (! elem.canfall (field, this.x, this.y))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 1マス落下
+    public void fall ()
+    {
+        // パラメーター更新
+        -- this.y;
+
+        // 位置更新
+        updatePos ();
+    }
+
+    // 設置
+    public void place (Field field)
+    {
+        foreach (Block elem in blocks)
+        {
+            elem.place (field, this.x , this.y);
+        }
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
