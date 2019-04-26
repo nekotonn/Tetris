@@ -70,6 +70,21 @@ public class GameScript : MonoBehaviour
         fallingtime -= Time.deltaTime;
         placetime -= Time.deltaTime;
 
+        if (Input.GetKeyDown (KeyCode.LeftArrow))
+        {
+            if (fallingTetrimino.canMoveLeft (field))
+            {
+                fallingTetrimino.moveLeft ();
+            }
+        }
+        if (Input.GetKeyDown (KeyCode.RightArrow))
+        {
+            if (fallingTetrimino.canMoveRight (field))
+            {
+                fallingTetrimino.moveRight ();
+            }
+        }
+
         if (fallingtime <= 0.0f)
         {
             // initialize
@@ -77,7 +92,7 @@ public class GameScript : MonoBehaviour
 
 
             // 落下処理
-            if (fallingTetrimino.canfall (field))
+            if (fallingTetrimino.canFall (field))
             {
                 // 落下可能な場合は落下
                 fallingTetrimino.fall ();

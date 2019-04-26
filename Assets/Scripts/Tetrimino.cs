@@ -14,6 +14,7 @@ public class Tetrimino : MonoBehaviour
     // テトリミノの位置
     private int x;
     private int y;
+
     
     // 位置を変更したあとに呼び出して更新するためのもの
     private void updatePos ()
@@ -24,6 +25,11 @@ public class Tetrimino : MonoBehaviour
         transform.anchoredPosition = new Vector2(this.x * transform.rect.width / 4, this.y * transform.rect.height / 4);
     }
 
+    
+    /********************************
+     * 初期化系関数
+     ********************************/
+
     // ブロックを1つ生成する
     private Block generateBlock (int x, int y, int color)
     {
@@ -33,7 +39,6 @@ public class Tetrimino : MonoBehaviour
         res.init (x, y, color);
         return res;
     }
-
 
     public void init (int x, int y, int color)
     {
@@ -121,8 +126,13 @@ public class Tetrimino : MonoBehaviour
         }
     }
 
+    
+    /********************************
+     * 重なり判定
+     ********************************/
+
     // 1マス落下できるかどうか
-    public bool canfall (Field field)
+    public bool canFall (Field field)
     {
         // テトリミノを構成するブロックのうち1つでも落下不可能ならばテトリミノは落下不可能
         foreach (Block elem in blocks)
@@ -136,6 +146,40 @@ public class Tetrimino : MonoBehaviour
         return true;
     }
 
+    // 1マス左に移動できるかどうか
+    public bool canMoveLeft (Field field)
+    {
+        // テトリミノを構成するブロックのうち1つでも移動不可能ならばテトリミノは移動不可能
+        foreach (Block elem in blocks)
+        {
+            // 1つ左に移動して重なるかどうか
+            if (elem.is_overlap (field, this.x - 1, this.y))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 1マス右に移動できるかどうか
+    public bool canMoveRight (Field field)
+    {
+        // テトリミノを構成するブロックのうち1つでも移動不可能ならばテトリミノは移動不可能
+        foreach (Block elem in blocks)
+        {
+            // 1つ右に移動して重なるかどうか
+            if (elem.is_overlap (field, this.x + 1, this.y))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /********************************
+     * 移動系関数
+     ********************************/
+
     // 1マス落下
     public void fall ()
     {
@@ -146,6 +190,30 @@ public class Tetrimino : MonoBehaviour
         updatePos ();
     }
 
+    // 左に移動
+    public void moveLeft ()
+    {
+        // パラメーター更新
+        -- this.x;
+
+        // 位置更新
+        updatePos ();
+    }
+
+    // 右に移動
+    public void moveRight ()
+    {
+        // パラメーター更新
+        ++ this.x;
+
+        // 位置更新
+        updatePos ();
+    }
+
+    /********************************
+     * 設置
+     ********************************/
+
     // 設置
     public void place (Field field)
     {
@@ -155,6 +223,9 @@ public class Tetrimino : MonoBehaviour
         }
     }
 
+    /********************************
+     * ('-'v)
+     ********************************/
 
     // Start is called before the first frame update
     void Start()
