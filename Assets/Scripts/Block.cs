@@ -74,19 +74,16 @@ public class Block : MonoBehaviour
         updateColor ();
     }
 
-    // 1マス落下できるかどうか ⇔ 下にブロックがあるかどうか
-    public bool canfall (Field field, int offset_x, int offset_y)
+    // ブロックが他のブロックと重なっているかどうか
+    public bool is_overlap (Field field, int offset_x, int offset_y)
     {
         var tmp_x = this.x + offset_x;
-        var tmp_y = this.y + offset_y - 1;
-
-        // 一番下の場合はfalse
-        if (tmp_y < 0)
+        var tmp_y = this.y + offset_y;
+        if (tmp_x < 0 || tmp_y < 0 || tmp_x >= 10 || tmp_y >= 22)
         {
-            return false;
+            return true;
         }
-
-        return field.getblock (tmp_x, tmp_y) == null;
+        return field.getblock (tmp_x, tmp_y) != null;
     }
 
     // 設置

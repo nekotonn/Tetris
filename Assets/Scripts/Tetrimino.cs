@@ -127,7 +127,8 @@ public class Tetrimino : MonoBehaviour
         // テトリミノを構成するブロックのうち1つでも落下不可能ならばテトリミノは落下不可能
         foreach (Block elem in blocks)
         {
-            if (! elem.canfall (field, this.x, this.y))
+            // 1つ下に移動して重なるかどうか
+            if (elem.is_overlap (field, this.x, this.y - 1))
             {
                 return false;
             }
