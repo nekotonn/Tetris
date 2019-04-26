@@ -8,13 +8,21 @@ public class GameScript : MonoBehaviour
     [SerializeField]
     private GameObject tetriminoPrefab_;
 
+
     // ブロックを積むところ
     [SerializeField]
     private Field field;
 
 
+    // テトリミノ系
     // 落下中のテトリミノ
     private Tetrimino fallingTetrimino;
+    // ホールド中のテトリミノ
+    private Tetrimino holdingTetrimino;
+    // ホールド可能フラグ
+    private bool holdable;
+    // ネクスト
+    //private Tetrimino[] next;
 
 
     // 乱数系
@@ -65,11 +73,19 @@ public class GameScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // タイマー系カウント
+        /********************************
+        * タイマーカウント処理
+        ********************************/
+
         gametime += Time.deltaTime;
         fallingtime -= Time.deltaTime;
         placetime -= Time.deltaTime;
 
+        /********************************
+        * キー入力処理
+        ********************************/
+
+        // 左キー入力で左に移動
         if (Input.GetKeyDown (KeyCode.LeftArrow))
         {
             if (fallingTetrimino.canMoveLeft (field))
@@ -77,6 +93,7 @@ public class GameScript : MonoBehaviour
                 fallingTetrimino.moveLeft ();
             }
         }
+        // 右キー入力で右に移動
         if (Input.GetKeyDown (KeyCode.RightArrow))
         {
             if (fallingTetrimino.canMoveRight (field))
@@ -84,6 +101,11 @@ public class GameScript : MonoBehaviour
                 fallingTetrimino.moveRight ();
             }
         }
+
+
+        /********************************
+        * 時間経過処理
+        ********************************/
 
         if (fallingtime <= 0.0f)
         {

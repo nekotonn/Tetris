@@ -59,7 +59,7 @@ public class Block : MonoBehaviour
         this.GetComponent <Image> ().sprite = spriteTable [color];
     }
 
-
+    
     public void init (int x, int y, int color)
     {
         // パラメーター更新
