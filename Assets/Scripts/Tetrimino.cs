@@ -35,12 +35,13 @@ public class Tetrimino : MonoBehaviour
     }
 
 
-    public void init (int color)
+    public void init (int x, int y, int color)
     {
         // パラメーター更新
-        this.x = 4;
-        this.y = 18;
+        this.x = x;
+        this.y = y;
 
+        // 位置更新
         updatePos ();
 
         // ブロック生成
@@ -123,7 +124,7 @@ public class Tetrimino : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        init (6);
+
     }
 
     // Update is called once per frame
