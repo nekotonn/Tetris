@@ -101,6 +101,16 @@ public class GameScript : MonoBehaviour
                 fallingTetrimino.moveRight ();
             }
         }
+        // Zキーで左回転
+        if (Input.GetKeyDown (KeyCode.Z))
+        {
+            fallingTetrimino.rotateLeft ();
+        }
+        // Xキーで右回転
+        if (Input.GetKeyDown (KeyCode.X))
+        {
+            fallingTetrimino.rotateRight ();
+        }
 
 
         /********************************

@@ -210,6 +210,24 @@ public class Tetrimino : MonoBehaviour
         updatePos ();
     }
 
+    // 左回転
+    public void rotateLeft ()
+    {
+        foreach (Block elem in blocks)
+        {
+            elem.rotateLeft ();
+        }
+    }
+
+    // 右回転
+    public void rotateRight ()
+    {
+        foreach (Block elem in blocks)
+        {
+            elem.rotateRight ();
+        }
+    }
+
     /********************************
      * 設置
      ********************************/

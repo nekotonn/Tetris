@@ -74,6 +74,7 @@ public class Block : MonoBehaviour
         updateColor ();
     }
 
+
     // ブロックが他のブロックと重なっているかどうか
     public bool is_overlap (Field field, int offset_x, int offset_y)
     {
@@ -85,6 +86,78 @@ public class Block : MonoBehaviour
         }
         return field.getblock (tmp_x, tmp_y) != null;
     }
+
+
+    // 左回転
+    public void rotateLeft ()
+    {
+        // 回転軸
+        int axis_x = 1;
+        int axis_y = 1;
+        
+        // 水色(Iミノ)または黄色(Oミノ)は回転軸が(1.5,1.5)なので特殊処理をする
+        if (this.color == 2 || this.color == 7)
+        {
+            this.x *= 2;
+            this.y *= 2;
+
+            axis_x = 3;
+            axis_y = 3;
+        }
+
+        // 回転計算
+        int delta_x = this.x - axis_x;
+        int delta_y = this.y - axis_y;
+
+        this.x = - delta_y + axis_x;
+        this.y =   delta_x + axis_y;
+
+        // 水色(Iミノ)または黄色(Oミノ)は回転軸が(1.5,1.5)なので特殊処理をする
+        if (this.color == 2 || this.color == 7)
+        {
+            this.x /= 2;
+            this.y /= 2;
+        }
+
+        // 位置更新
+        updatePos ();
+    }
+
+    // 右回転
+    public void rotateRight ()
+    {
+        // 回転軸
+        int axis_x = 1;
+        int axis_y = 1;
+        
+        // 水色(Iミノ)または黄色(Oミノ)は回転軸が(1.5,1.5)なので特殊処理をする
+        if (this.color == 2 || this.color == 7)
+        {
+            this.x *= 2;
+            this.y *= 2;
+
+            axis_x = 3;
+            axis_y = 3;
+        }
+
+        // 回転計算
+        int delta_x = this.x - axis_x;
+        int delta_y = this.y - axis_y;
+
+        this.x =   delta_y + axis_x;
+        this.y = - delta_x + axis_y;
+
+        // 水色(Iミノ)または黄色(Oミノ)は回転軸が(1.5,1.5)なので特殊処理をする
+        if (this.color == 2 || this.color == 7)
+        {
+            this.x /= 2;
+            this.y /= 2;
+        }
+
+        // 位置更新
+        updatePos ();
+    }
+
 
     // 設置
     public void place (Field field, int offset_x, int offset_y)
