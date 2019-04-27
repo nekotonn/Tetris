@@ -34,6 +34,7 @@ public class GameScript : MonoBehaviour
     private float gametime;
     // 落下時間
     private float fallingtime;
+    private float fallingtimeInterval;
     // 設置時間
     private float placetime;
 
@@ -63,7 +64,8 @@ public class GameScript : MonoBehaviour
         
         // タイマー初期化
         gametime = 0.0f;
-        fallingtime = 1.0f;
+        fallingtimeInterval = 1.0f;
+        fallingtime = fallingtimeInterval;
         placetime = 1.0f;
         
 
@@ -101,6 +103,17 @@ public class GameScript : MonoBehaviour
                 fallingTetrimino.moveRight ();
             }
         }
+        // 下キーでソフトドロップ
+        if (Input.GetKeyDown (KeyCode.DownArrow))
+        {
+            fallingtime = 0.0f;
+            fallingtimeInterval = 0.05f;
+        }
+        if (Input.GetKeyUp (KeyCode.DownArrow))
+        {
+            fallingtimeInterval = 1.0f;
+            fallingtime = fallingtimeInterval;
+        }
         // Zキーで左回転
         if (Input.GetKeyDown (KeyCode.Z))
         {
@@ -120,7 +133,7 @@ public class GameScript : MonoBehaviour
         if (fallingtime <= 0.0f)
         {
             // initialize
-            fallingtime = 1.0f;
+            fallingtime = fallingtimeInterval;
 
 
             // 落下処理
