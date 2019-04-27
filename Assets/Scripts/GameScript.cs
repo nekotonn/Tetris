@@ -32,12 +32,19 @@ public class GameScript : MonoBehaviour
     // タイマー系[単位:秒]
     // ゲームプレイ時間
     private float gametime;
+
     // 落下時間
     private float fallingtime;
+    private float default_fallingInterval;
+    private float softdrop_fallingInterval;
     private float fallingtimeInterval;
-    // 設置時間
-    private float placetime;
 
+
+    // 移動制限・回転制限
+    private int move_count;
+    private int rotate_count;
+    private int move_limit;
+    private int rotate_limit;
 
     // 乱数系
     // 1～7の乱数を返す関数(テトリミノが7種類なので)
@@ -64,9 +71,16 @@ public class GameScript : MonoBehaviour
         
         // タイマー初期化
         gametime = 0.0f;
-        fallingtimeInterval = 1.0f;
-        fallingtime = fallingtimeInterval;
-        placetime = 1.0f;
+        fallingtime = 0.0f;
+        default_fallingInterval = 1.0f;
+        softdrop_fallingInterval = 0.1f;
+        fallingtimeInterval = default_fallingInterval;
+
+
+        move_count = 0;
+        rotate_count = 0;
+        move_limit = 14;
+        rotate_limit = 14;
         
 
         fallingTetrimino = generateTetrimino (4, 18, generateRandom ());
@@ -80,8 +94,7 @@ public class GameScript : MonoBehaviour
         ********************************/
 
         gametime += Time.deltaTime;
-        fallingtime -= Time.deltaTime;
-        placetime -= Time.deltaTime;
+        fallingtime += Time.deltaTime;
 
         /********************************
         * キー入力処理
@@ -106,13 +119,12 @@ public class GameScript : MonoBehaviour
         // 下キーでソフトドロップ
         if (Input.GetKeyDown (KeyCode.DownArrow))
         {
-            fallingtime = 0.0f;
-            fallingtimeInterval = 0.05f;
+            fallingtime = fallingtimeInterval = softdrop_fallingInterval;
         }
         if (Input.GetKeyUp (KeyCode.DownArrow))
         {
-            fallingtimeInterval = 1.0f;
-            fallingtime = fallingtimeInterval;
+            fallingtime = 0.0f;
+            fallingtimeInterval = default_fallingInterval;
         }
         // Zキーで左回転
         if (Input.GetKeyDown (KeyCode.Z))
@@ -130,10 +142,10 @@ public class GameScript : MonoBehaviour
         * 時間経過処理
         ********************************/
 
-        if (fallingtime <= 0.0f)
+        if (fallingtime >= fallingtimeInterval)
         {
             // initialize
-            fallingtime = fallingtimeInterval;
+            fallingtime = 0.0f;
 
 
             // 落下処理
