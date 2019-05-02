@@ -76,7 +76,7 @@ public class Block : MonoBehaviour
 
 
     // ブロックが他のブロックと重なっているかどうか
-    public bool is_overlap (Field field, int offset_x, int offset_y)
+    public bool is_hit (Field field, int offset_x, int offset_y)
     {
         var tmp_x = this.x + offset_x;
         var tmp_y = this.y + offset_y;

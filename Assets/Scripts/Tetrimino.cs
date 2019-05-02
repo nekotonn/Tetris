@@ -11,9 +11,16 @@ public class Tetrimino : MonoBehaviour
     // テトリミノを構成するブロックの塊
     private Block[] blocks;
 
+    // テトリミノの種類
+    private char minotype;
+
     // テトリミノの位置
     private int x;
     private int y;
+
+    // テトリミノの回転角度
+    // 0:0°, 1:右90°, 2:180°, 3:左90°
+    private int radius;
 
     
     // 位置を変更したあとに呼び出して更新するためのもの
@@ -23,6 +30,12 @@ public class Tetrimino : MonoBehaviour
 
         // 更新
         transform.anchoredPosition = new Vector2(this.x * transform.rect.width / 4, this.y * transform.rect.height / 4);
+    }
+
+    // for debug
+    public int getRadius ()
+    {
+        return radius;
     }
 
     
@@ -46,6 +59,8 @@ public class Tetrimino : MonoBehaviour
         this.x = x;
         this.y = y;
 
+        this.radius = 0;
+
         // 位置更新
         updatePos ();
 
@@ -59,6 +74,7 @@ public class Tetrimino : MonoBehaviour
                 generateBlock (2, 1, color),
                 generateBlock (0, 2, color)
             };
+            minotype = 'J';
         }
         else if (color == 2)
         {
@@ -69,16 +85,18 @@ public class Tetrimino : MonoBehaviour
                 generateBlock (2, 2, color),
                 generateBlock (3, 2, color)
             };
+            minotype = 'I';
         }
         else if (color == 3)
         {
             // Sミノ 緑
             blocks = new Block[] {
-                generateBlock (0, 0, color),
-                generateBlock (1, 0, color),
+                generateBlock (0, 1, color),
                 generateBlock (1, 1, color),
-                generateBlock (2, 1, color)
+                generateBlock (1, 2, color),
+                generateBlock (2, 2, color)
             };
+            minotype = 'S';
         }
         else if (color == 4)
         {
@@ -89,6 +107,7 @@ public class Tetrimino : MonoBehaviour
                 generateBlock (2, 1, color),
                 generateBlock (2, 2, color)
             };
+            minotype = 'L';
         }
         else if (color == 5)
         {
@@ -99,6 +118,7 @@ public class Tetrimino : MonoBehaviour
                 generateBlock (2, 1, color),
                 generateBlock (1, 2, color)
             };
+            minotype = 'T';
         }
         else if (color == 6)
         {
@@ -109,6 +129,7 @@ public class Tetrimino : MonoBehaviour
                 generateBlock (0, 2, color),
                 generateBlock (1, 2, color)
             };
+            minotype = 'Z';
         }
         else if (color == 7)
         {
@@ -119,6 +140,7 @@ public class Tetrimino : MonoBehaviour
                 generateBlock (1, 2, color),
                 generateBlock (2, 2, color)
             };
+            minotype = 'O';
         }
         else
         {
@@ -131,49 +153,44 @@ public class Tetrimino : MonoBehaviour
      * 重なり判定
      ********************************/
 
+    // 接触しているかどうか
+    public bool is_hit (Field field)
+    {
+        foreach (Block elem in blocks)
+        {
+            if (elem.is_hit (field, this.x, this.y))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // 1マス落下できるかどうか
     public bool canFall (Field field)
     {
-        // テトリミノを構成するブロックのうち1つでも落下不可能ならばテトリミノは落下不可能
-        foreach (Block elem in blocks)
-        {
-            // 1つ下に移動して重なるかどうか
-            if (elem.is_overlap (field, this.x, this.y - 1))
-            {
-                return false;
-            }
-        }
-        return true;
+        -- this.y;
+        var res = ! is_hit (field);
+        ++ this.y;
+        return res;
     }
 
     // 1マス左に移動できるかどうか
     public bool canMoveLeft (Field field)
     {
-        // テトリミノを構成するブロックのうち1つでも移動不可能ならばテトリミノは移動不可能
-        foreach (Block elem in blocks)
-        {
-            // 1つ左に移動して重なるかどうか
-            if (elem.is_overlap (field, this.x - 1, this.y))
-            {
-                return false;
-            }
-        }
-        return true;
+        -- this.x;
+        var res = ! is_hit (field);
+        ++ this.x;
+        return res;
     }
 
     // 1マス右に移動できるかどうか
     public bool canMoveRight (Field field)
     {
-        // テトリミノを構成するブロックのうち1つでも移動不可能ならばテトリミノは移動不可能
-        foreach (Block elem in blocks)
-        {
-            // 1つ右に移動して重なるかどうか
-            if (elem.is_overlap (field, this.x + 1, this.y))
-            {
-                return false;
-            }
-        }
-        return true;
+        ++ this.x;
+        var res = ! is_hit (field);
+        -- this.x;
+        return res;
     }
 
     /********************************
@@ -210,22 +227,459 @@ public class Tetrimino : MonoBehaviour
         updatePos ();
     }
 
-    // 左回転
-    public void rotateLeft ()
+    // 強制左回転
+    private void rotateLeft_force ()
     {
+        // 回転処理
         foreach (Block elem in blocks)
         {
             elem.rotateLeft ();
         }
+
+        // 角度更新
+        this.radius = (this.radius == 0) ? 3 : this.radius - 1;
     }
 
-    // 右回転
-    public void rotateRight ()
+    // 強制右回転
+    private void rotateRight_force ()
     {
+        // 回転処理
         foreach (Block elem in blocks)
         {
             elem.rotateRight ();
         }
+
+        // 角度更新
+        this.radius = (this.radius == 3) ? 0 : this.radius + 1;
+    }
+
+
+    // 左回転
+    public bool rotateLeft (Field field)
+    {
+        rotateLeft_force ();
+
+        // Super Rotation System
+        if (is_hit (field))
+        {
+            // 補正前の座標を記憶
+            int backup_x = this.x;
+            int backup_y = this.y;
+
+            // JSLTZミノについて
+            // Oミノは必ず回転に成功するので考慮しない
+            if (minotype != 'I')
+            {
+                // 第1段階
+                if (this.radius == 0)
+                {
+                    ++ this.x;
+                }
+                else if (this.radius == 1)
+                {
+                    -- this.x;
+                }
+                else if (this.radius == 2)
+                {
+                    -- this.x;
+                }
+                else if (this.radius == 3)
+                {
+                    ++ this.x;
+                }
+
+                if (is_hit (field))
+                {
+                    // 第2段階
+                    if (this.radius == 0 || this.radius == 2)
+                    {
+                        -- this.y;
+                    }
+                    else if (this.radius == 1 || this.radius == 3)
+                    {
+                        ++ this.y;
+                    }
+
+                    if (is_hit (field))
+                    {
+                        // 第3段階
+                        this.x = backup_x;
+                        this.y = backup_y;
+
+                        if (this.radius == 0 || this.radius == 2)
+                        {
+                            this.y += 2;
+                        }
+                        else if (this.radius == 1 || this.radius == 3)
+                        {
+                            this.y -= 2;
+                        }
+
+                        if (is_hit (field))
+                        {
+                            // 第4段階
+                            if (this.radius == 0)
+                            {
+                                ++ this.x;
+                            }
+                            else if (this.radius == 1)
+                            {
+                                -- this.x;
+                            }
+                            else if (this.radius == 2)
+                            {
+                                -- this.x;
+                            }
+                            else if (this.radius == 3)
+                            {
+                                ++ this.x;
+                            }
+
+                            if (is_hit (field))
+                            {
+                                // 失敗 => 元に戻す
+                                
+                                // 場所を元に戻す
+                                this.x = backup_x;
+                                this.y = backup_y;
+                                
+                                // 回転も元に戻す
+                                rotateRight_force ();
+
+                                Debug.Log ("回転失敗");
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            // Iミノ
+            else if (minotype == 'I')
+            {
+                // 第1段階
+                if (this.radius == 0)
+                {
+                    this.x += 2;
+                }
+                else if (this.radius == 1)
+                {
+                    ++ this.x;
+                }
+                else if (this.radius == 2)
+                {
+                    ++ this.x;
+                }
+                else if (this.radius == 3)
+                {
+                    -- this.x;
+                }
+
+                if (is_hit (field))
+                {
+                    // 第2段階
+                    if (this.radius == 0)
+                    {
+                        this.x -= 3;
+                    }
+                    else if (this.radius == 1)
+                    {
+                        this.x -= 3;
+                    }
+                    else if (this.radius == 2)
+                    {
+                        this.x -= 3;
+                    }
+                    else if (this.radius == 3)
+                    {
+                        this.x += 3;
+                    }
+
+                    if (is_hit (field))
+                    {
+                        // 第3段階
+                        if (this.radius == 0)
+                        {
+                            this.x += 3;
+                            this.y += 1;
+                        }
+                        else if (this.radius == 1)
+                        {
+                            this.x += 3;
+                            this.y -= 2;
+                        }
+                        else if (this.radius == 2)
+                        {
+                            -- this.y;
+                        }
+                        else if (this.radius == 3)
+                        {
+                            this.x -= 3;
+                            this.y += 2;
+                        }
+
+                        if (is_hit (field))
+                        {
+                            // 第4段階
+                            if (this.radius == 0)
+                            {
+                                this.x -= 3;
+                                this.y -= 3;
+                            }
+                            else if (this.radius == 1)
+                            {
+                                this.x -= 3;
+                                this.y += 3;
+                            }
+                            else if (this.radius == 2)
+                            {
+                                this.x += 3;
+                                this.y += 3;
+                            }
+                            else if (this.radius == 3)
+                            {
+                                this.x += 3;
+                                this.y -= 3;
+                            }
+
+                            if (is_hit (field))
+                            {
+                                // 失敗 => 元に戻す
+                                
+                                // 場所を元に戻す
+                                this.x = backup_x;
+                                this.y = backup_y;
+                                
+                                // 回転も元に戻す
+                                rotateRight_force ();
+
+                                Debug.Log ("回転失敗");
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // SRS成功後
+            // 位置更新
+            updatePos ();
+        }
+        
+        return true;
+    }
+
+    // 右回転
+    public bool rotateRight (Field field)
+    {
+        rotateRight_force ();
+
+        // Super Rotation System
+        if (is_hit (field))
+        {
+            // 補正前の座標を記憶
+            int backup_x = this.x;
+            int backup_y = this.y;
+
+            // JSLTZミノについて
+            // Oミノは必ず回転に成功するので考慮しない
+            if (minotype != 'I')
+            {
+                // 第1段階
+                if (this.radius == 0)
+                {
+                    -- this.x;
+                }
+                else if (this.radius == 1)
+                {
+                    -- this.x;
+                }
+                else if (this.radius == 2)
+                {
+                    ++ this.x;
+                }
+                else if (this.radius == 3)
+                {
+                    ++ this.x;
+                }
+
+                if (is_hit (field))
+                {
+                    // 第2段階
+                    if (this.radius == 0 || this.radius == 2)
+                    {
+                        -- this.y;
+                    }
+                    else if (this.radius == 1 || this.radius == 3)
+                    {
+                        ++ this.y;
+                    }
+
+                    if (is_hit (field))
+                    {
+                        // 第3段階
+                        this.x = backup_x;
+                        this.y = backup_y;
+
+                        if (this.radius == 0 || this.radius == 2)
+                        {
+                            this.y += 2;
+                        }
+                        else if (this.radius == 1 || this.radius == 3)
+                        {
+                            this.y -= 2;
+                        }
+
+                        if (is_hit (field))
+                        {
+                            // 第4段階
+                            if (this.radius == 0)
+                            {
+                                -- this.x;
+                            }
+                            else if (this.radius == 1)
+                            {
+                                -- this.x;
+                            }
+                            else if (this.radius == 2)
+                            {
+                                ++ this.x;
+                            }
+                            else if (this.radius == 3)
+                            {
+                                ++ this.x;
+                            }
+
+                            if (is_hit (field))
+                            {
+                                // 失敗 => 元に戻す
+                                
+                                // 場所を元に戻す
+                                this.x = backup_x;
+                                this.y = backup_y;
+                                
+                                // 回転も元に戻す
+                                rotateRight_force ();
+
+                                Debug.Log ("回転失敗");
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            // Iミノ
+            else if (minotype == 'I')
+            {
+                // 第1段階
+                if (this.radius == 0)
+                {
+                    this.x -= 2;
+                }
+                else if (this.radius == 1)
+                {
+                    this.x -= 2;
+                }
+                else if (this.radius == 2)
+                {
+                    -- this.x;
+                }
+                else if (this.radius == 3)
+                {
+                    this.x += 2;
+                }
+
+                if (is_hit (field))
+                {
+                    // 第2段階
+                    if (this.radius == 0)
+                    {
+                        this.x += 3;
+                    }
+                    else if (this.radius == 1)
+                    {
+                        this.x += 3;
+                    }
+                    else if (this.radius == 2)
+                    {
+                        this.x += 3;
+                    }
+                    else if (this.radius == 3)
+                    {
+                        this.x -= 3;
+                    }
+
+                    if (is_hit (field))
+                    {
+                        // 第3段階
+                        if (this.radius == 0)
+                        {
+                            this.y -= 2;
+                        }
+                        else if (this.radius == 1)
+                        {
+                            this.x -= 3;
+                            this.y -= 1;
+                        }
+                        else if (this.radius == 2)
+                        {
+                            this.x -= 3;
+                            this.y += 2;
+                        }
+                        else if (this.radius == 3)
+                        {
+                            this.x += 3;
+                            this.y += 1;
+                        }
+
+                        if (is_hit (field))
+                        {
+                            // 第4段階
+                            if (this.radius == 0)
+                            {
+                                this.x -= 3;
+                                this.y += 3;
+                            }
+                            else if (this.radius == 1)
+                            {
+                                this.x += 3;
+                                this.y += 3;
+                            }
+                            else if (this.radius == 2)
+                            {
+                                this.x += 3;
+                                this.y -= 3;
+                            }
+                            else if (this.radius == 3)
+                            {
+                                this.x -= 3;
+                                this.y -= 3;
+                            }
+
+                            if (is_hit (field))
+                            {
+                                // 失敗 => 元に戻す
+                                
+                                // 場所を元に戻す
+                                this.x = backup_x;
+                                this.y = backup_y;
+                                
+                                // 回転も元に戻す
+                                rotateLeft_force ();
+
+                                Debug.Log ("回転失敗");
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // SRS成功後
+            // 位置更新
+            updatePos ();
+        }
+        
+        return true;
     }
 
     /********************************
