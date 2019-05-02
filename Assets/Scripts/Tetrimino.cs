@@ -211,6 +211,70 @@ public class Tetrimino : MonoBehaviour
         return res;
     }
 
+    // T-Spin判定用
+    // (0:None, 1:T-Spin Mini, 2:T-Spin)
+    public int check_T_Spin (Field field)
+    {
+        int wall_count = 0;
+        // Tミノかどうか
+        if (minotype == 'T')
+        {
+            // 4隅にブロックが3つ以上あるかどうか
+            if (field.isblock (this.x, this.y))
+            {
+                ++ wall_count;
+            }
+            if (field.isblock (this.x + 2, this.y))
+            {
+                ++ wall_count;
+            }
+            if (field.isblock (this.x, this.y + 2))
+            {
+                ++ wall_count;
+            }
+            if (field.isblock (this.x + 2, this.y + 2))
+            {
+                ++ wall_count;
+            }
+        }
+        if (wall_count >= 3)
+        {
+            // 裏に壁があればMini
+            if (this.radius == 0)
+            {
+                if (field.isblock (this.x + 1, this.y))
+                {
+                    return 1;
+                }
+            }
+            else if (this.radius == 1)
+            {
+
+                if (field.isblock (this.x, this.y + 1))
+                {
+                    return 1;
+                }
+            }
+            else if (this.radius == 2)
+            {
+                if (field.isblock (this.x + 1, this.y + 2))
+                {
+                    return 1;
+                }
+            }
+            else if (this.radius == 3)
+            {
+                if (field.isblock (this.x + 2, this.y + 1))
+                {
+                    return 1;
+                }
+            }
+            return 2;
+        }
+        return 0;
+    }
+
+
     /********************************
      * 移動系関数
      ********************************/

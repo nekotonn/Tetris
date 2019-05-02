@@ -78,13 +78,7 @@ public class Block : MonoBehaviour
     // ブロックが他のブロックと重なっているかどうか
     public bool is_hit (Field field, int offset_x, int offset_y)
     {
-        var tmp_x = this.x + offset_x;
-        var tmp_y = this.y + offset_y;
-        if (tmp_x < 0 || tmp_y < 0 || tmp_x >= 10 || tmp_y >= 22)
-        {
-            return true;
-        }
-        return field.getblock (tmp_x, tmp_y) != null;
+        return field.isblock (this.x + offset_x, this.y + offset_y);
     }
 
 

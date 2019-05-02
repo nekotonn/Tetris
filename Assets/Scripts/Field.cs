@@ -18,6 +18,16 @@ public class Field : MonoBehaviour
         this.data [x, y] = block;
     }
 
+    // (x,y)がブロックかどうか(壁もブロックとする)
+    public bool isblock (int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= 10 || y >= 22)
+        {
+            return true;
+        }
+        return data [x, y] != null;
+    }
+
     public void clear_line_1 (int y_)
     {
         int y = y_;
@@ -42,8 +52,11 @@ public class Field : MonoBehaviour
         }
     }
 
-    public void clear_line ()
+    // ライン消去
+    // 戻り値: 消したライン数
+    public int clear_lines ()
     {
+        int res = 0;
         for (int y = 0; y < 22; ++ y)
         {
             for (int x = 0; x < 10; ++ x)
@@ -55,10 +68,12 @@ public class Field : MonoBehaviour
                 }
             }
             clear_line_1 (y --);
+            ++ res;
 
             nextline:
             ;
         }
+        return res;
     }
 
     // Start is called before the first frame update

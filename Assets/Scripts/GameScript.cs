@@ -33,6 +33,9 @@ public class GameScript : MonoBehaviour
 
     [SerializeField]
     private Text debug_radius_info;
+    
+    [SerializeField]
+    private Text debug_technique_info;
 
     // 定数系
     // 召喚位置
@@ -75,8 +78,23 @@ public class GameScript : MonoBehaviour
     private int rotate_limit;
 
 
+    // フラグ系
     // ホールド可能フラグ
     private bool holdable;
+    // 着地前に回転したか(T-Spin判定用)
+    private bool last_rotated;
+
+    // 継続フラグ
+    // Tetris
+    private bool Tetris;
+    // T-Spinフラグ
+    // (0:None, 1:T-Spin Mini, 2:T-Spin)
+    private int T_Spin;
+    // Back-to-Back
+    private bool Back_to_Back;
+    // REN
+    private int ren;
+
 
     
     // テトリミノの生成
@@ -130,6 +148,7 @@ public class GameScript : MonoBehaviour
         move_count = 0;
         rotate_count = 0;
         holdable = true;
+        last_rotated = false;
 
         // ネクストが7個以下になったら補充する
         if (nextTetriminos.Count <= 7)
@@ -188,6 +207,7 @@ public class GameScript : MonoBehaviour
                 fallingTetrimino.fall ();
             }
             placetime = placetimeInterval;
+            last_rotated = false;
         }
         // 下キーでソフトドロップ
         if (Input.GetKeyDown (KeyCode.DownArrow))
@@ -206,6 +226,7 @@ public class GameScript : MonoBehaviour
             {
                 fallingTetrimino.moveLeft ();
                 placetime = 0.0f;
+                last_rotated = false;
             }
         }
         // 右キー入力で右に移動
@@ -215,6 +236,7 @@ public class GameScript : MonoBehaviour
             {
                 fallingTetrimino.moveRight ();
                 placetime = 0.0f;
+                last_rotated = false;
             }
         }
         // Zキーで左回転
@@ -225,6 +247,7 @@ public class GameScript : MonoBehaviour
             {
                 // 設置時間リセット
                 placetime = 0.0f;
+                last_rotated = true;
             }
         }
         // Xキーで右回転
@@ -235,6 +258,7 @@ public class GameScript : MonoBehaviour
             {
                 // 設置時間リセット
                 placetime = 0.0f;
+                last_rotated = true;
             }
         }
         // スペースキーでホールド
@@ -285,6 +309,8 @@ public class GameScript : MonoBehaviour
 
                 // 設置時間リセット
                 placetime = 0.0f;
+
+                last_rotated = false;
             }
             else
             {
@@ -301,13 +327,20 @@ public class GameScript : MonoBehaviour
             // 落下できない場合
             if (! fallingTetrimino.canFall (field))
             {
+                // T-Spin判定
+                T_Spin = last_rotated ? fallingTetrimino.check_T_Spin (field) : 0;
+
+                // 設置
                 fallingTetrimino.place (field);
 
                 // いらなくなったテトリミノを破棄
                 Destroy (fallingTetrimino.gameObject);
 
                 // ライン消去
-                field.clear_line ();
+                int line = field.clear_lines ();
+                
+                // Tetris判定
+                Tetris = line == 4;
 
                 // 次のテトリミノを召喚
                 summon_fallingTetrimino ();
@@ -329,5 +362,6 @@ public class GameScript : MonoBehaviour
 
         debug_gametime_text.text = "gametime: " + gametime.ToString ();
         debug_radius_info.text = "radius: " + fallingTetrimino.getRadius ().ToString ();
+        debug_technique_info.text = T_Spin == 1 ? "T-Spin Mini" : T_Spin == 2 ? "T-Spin" : Tetris ? "Tetris" : "";
     }
 }
