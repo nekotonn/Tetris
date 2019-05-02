@@ -147,6 +147,24 @@ public class Tetrimino : MonoBehaviour
             Debug.Log ("unknown color id");
         }
     }
+    
+    // パラメーター初期化する
+    public void reset (RectTransform parent, int x, int y)
+    {
+        this.gameObject.transform.SetParent (parent, false);
+        this.x = x;
+        this.y = y;
+        updatePos ();
+    }
+
+    // 回転リセット
+    public void reset_rotation ()
+    {
+        while (this.radius != 0)
+        {
+            rotateRight_force ();
+        }
+    }
 
     
     /********************************
@@ -196,6 +214,13 @@ public class Tetrimino : MonoBehaviour
     /********************************
      * 移動系関数
      ********************************/
+
+    public void setPos (int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+        updatePos ();
+    }
 
     // 1マス落下
     public void fall ()
@@ -558,7 +583,7 @@ public class Tetrimino : MonoBehaviour
                                 this.y = backup_y;
                                 
                                 // 回転も元に戻す
-                                rotateRight_force ();
+                                rotateLeft_force ();
 
                                 Debug.Log ("回転失敗");
                                 return false;
@@ -680,18 +705,6 @@ public class Tetrimino : MonoBehaviour
         }
         
         return true;
-    }
-
-    // Hold用にパラメーターを初期化する
-    public void reset (int x, int y)
-    {
-        this.x = x;
-        this.y = y;
-        while (this.radius != 0)
-        {
-            rotateRight_force ();
-        }
-        updatePos ();
     }
 
     /********************************

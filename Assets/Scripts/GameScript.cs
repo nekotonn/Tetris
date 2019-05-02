@@ -14,6 +14,10 @@ public class GameScript : MonoBehaviour
     [SerializeField]
     private Field field;
 
+    // ネクスト管理
+    [SerializeField]
+    private RectTransform next;
+
     // ホールド表示場所
     [SerializeField]
     private RectTransform hold;
@@ -30,14 +34,19 @@ public class GameScript : MonoBehaviour
     [SerializeField]
     private Text debug_radius_info;
 
+    // 定数系
+    // 召喚位置
+    private const int summon_x = 4;
+    private const int summon_y = 18;
+
 
     // テトリミノ系
     // 落下中のテトリミノ
     private Tetrimino fallingTetrimino;
+    // ネクスト
+    private List <Tetrimino> nextTetriminos = new List <Tetrimino> ();
     // ホールド中のテトリミノ
     private Tetrimino holdingTetrimino;
-    // ネクスト
-    //private Tetrimino[] next;
 
 
     // 乱数系
@@ -69,33 +78,64 @@ public class GameScript : MonoBehaviour
     // ホールド可能フラグ
     private bool holdable;
 
-
-    // 乱数系
-    // 1～7の乱数を返す関数(テトリミノが7種類なので)
-    private int generateRandom ()
-    {
-        return random.Next (0, 7) + 1;
-    }
     
     // テトリミノの生成
-    Tetrimino generateTetrimino (int x, int y, int color)
+    Tetrimino generateTetrimino (int color)
     {
         var tetrimino = Instantiate <GameObject> (tetriminoPrefab_);
-        tetrimino.transform.SetParent (field.GetComponent <RectTransform> (), false);
+        tetrimino.transform.SetParent (next, false);
         var res = tetrimino.GetComponent <Tetrimino> ();
-        res.init (x, y, color);
+        res.init (0, 0, color);
         return res;
+    }
+
+    // ネクスト補充
+    void replenish_next ()
+    {
+        // generate
+        var minos = new Tetrimino[] {null,null,null,null,null,null,null};
+        for (int i = 0; i < minos.Length; ++ i)
+        {
+            minos [i] = generateTetrimino (i + 1);
+        }
+
+        // shuffle
+        // Fisher-Yatesアルゴリズム
+        for (int i = minos.Length - 1; i > 0; -- i)
+        {
+            int k = random.Next (i + 1);
+            // swap
+            var tmp = minos [k];
+            minos [k] = minos [i];
+            minos [i] = tmp;
+        }
+
+        // add
+        nextTetriminos.AddRange (minos);
     }
 
     // テトリミノの召喚
     void summon_fallingTetrimino ()
     {
-        fallingTetrimino = generateTetrimino (4, 18, generateRandom ());
+        // ネクストから取り出す
+        fallingTetrimino = nextTetriminos [0];
+        nextTetriminos.RemoveAt (0);
+
+        // 位置初期化
+        fallingTetrimino.reset (field.GetComponent <RectTransform> (), summon_x, summon_y);
+
+        // なんかいろいろ初期化
         fallingtime = 0.0f;
         placetime = 0.0f;
         move_count = 0;
         rotate_count = 0;
         holdable = true;
+
+        // ネクストが7個以下になったら補充する
+        if (nextTetriminos.Count <= 7)
+        {
+            replenish_next ();
+        }
     }
 
     // Start is called before the first frame update
@@ -103,12 +143,15 @@ public class GameScript : MonoBehaviour
     {
         // シード初期化
         random = new System.Random ();
+
+        // ネクスト補充
+        replenish_next ();
         
         // タイマー初期化
         gametime = 0.0f;
 
         default_fallingInterval = 1.0f;
-        softdrop_fallingInterval = 0.1f;
+        softdrop_fallingInterval = 0.05f;
         fallingtimeInterval = default_fallingInterval;
 
         placetimeInterval = 1.0f;
@@ -199,26 +242,24 @@ public class GameScript : MonoBehaviour
         {
             if (holdable)
             {
-                // swap
-                var tmp = holdingTetrimino;
+                // ネクストの先頭にholdingを無理やり突っ込む
+                // こうすることで<s>めんどくさい</s>初期化処理をsummon_fallingTetrimino()に丸投げできる
+                if (holdingTetrimino != null)
+                {
+                    nextTetriminos.Insert (0, holdingTetrimino);
+                }
+
+                // 回転リセット
+                fallingTetrimino.reset_rotation ();
+
+                // ホールド
                 holdingTetrimino = fallingTetrimino;
-                fallingTetrimino = tmp;
 
                 // 親をholdにする
-                holdingTetrimino.gameObject.transform.SetParent (hold, false);
-                holdingTetrimino.reset (0, 0);
+                holdingTetrimino.reset (hold, 0, 0);
 
-                if (fallingTetrimino != null)
-                {
-                    // 親をfieldにする
-                    fallingTetrimino.gameObject.transform.SetParent (field.GetComponent <RectTransform> (), false);
-                    fallingTetrimino.reset (4, 18);
-                }
-                else
-                {
-                    // ホールドしてなかった場合は新しく召喚
-                    summon_fallingTetrimino ();
-                }
+                // 召喚
+                summon_fallingTetrimino ();
                 
                 // initialize
                 holdable = false;
@@ -265,12 +306,22 @@ public class GameScript : MonoBehaviour
                 // いらなくなったテトリミノを破棄
                 Destroy (fallingTetrimino.gameObject);
 
+                // ライン消去
+                field.clear_line ();
+
                 // 次のテトリミノを召喚
                 summon_fallingTetrimino ();
             }
         }
 
+        // テキスト描画
         hold_text.color = holdable ? new Color (1.0f, 1.0f, 1.0f) : new Color (0.5f, 0.5f, 0.5f);
+
+        // ネクスト描画
+        for (int i = 0; i < nextTetriminos.Count; ++ i)
+        {
+            nextTetriminos [i].setPos (0, (5 - i) * 4);
+        }
 
         /********************************
         * debug

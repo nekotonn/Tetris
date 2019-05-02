@@ -175,6 +175,14 @@ public class Block : MonoBehaviour
         field.setblock (this.x, this.y, this);
     }
 
+    // ライン消去用
+    // 下に移動
+    public void moveDown ()
+    {
+        -- this.y;
+        updatePos ();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
