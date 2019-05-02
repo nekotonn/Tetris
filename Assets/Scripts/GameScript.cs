@@ -14,6 +14,14 @@ public class GameScript : MonoBehaviour
     [SerializeField]
     private Field field;
 
+    // ホールド表示場所
+    [SerializeField]
+    private RectTransform hold;
+    
+    // HOLDって文字
+    [SerializeField]
+    private Text hold_text;
+
     
     // デバッグ情報表示
     [SerializeField]
@@ -28,8 +36,6 @@ public class GameScript : MonoBehaviour
     private Tetrimino fallingTetrimino;
     // ホールド中のテトリミノ
     private Tetrimino holdingTetrimino;
-    // ホールド可能フラグ
-    private bool holdable;
     // ネクスト
     //private Tetrimino[] next;
 
@@ -59,6 +65,11 @@ public class GameScript : MonoBehaviour
     private int move_limit;
     private int rotate_limit;
 
+
+    // ホールド可能フラグ
+    private bool holdable;
+
+
     // 乱数系
     // 1～7の乱数を返す関数(テトリミノが7種類なので)
     private int generateRandom ()
@@ -76,6 +87,17 @@ public class GameScript : MonoBehaviour
         return res;
     }
 
+    // テトリミノの召喚
+    void summon_fallingTetrimino ()
+    {
+        fallingTetrimino = generateTetrimino (4, 18, generateRandom ());
+        fallingtime = 0.0f;
+        placetime = 0.0f;
+        move_count = 0;
+        rotate_count = 0;
+        holdable = true;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -85,22 +107,18 @@ public class GameScript : MonoBehaviour
         // タイマー初期化
         gametime = 0.0f;
 
-        fallingtime = 0.0f;
         default_fallingInterval = 1.0f;
         softdrop_fallingInterval = 0.1f;
         fallingtimeInterval = default_fallingInterval;
 
-        placetime = 0.0f;
         placetimeInterval = 1.0f;
 
 
-        move_count = 0;
-        rotate_count = 0;
         move_limit = 14;
         rotate_limit = 14;
         
 
-        fallingTetrimino = generateTetrimino (4, 18, generateRandom ());
+        summon_fallingTetrimino ();
     }
 
     // Update is called once per frame
@@ -176,6 +194,36 @@ public class GameScript : MonoBehaviour
                 placetime = 0.0f;
             }
         }
+        // スペースキーでホールド
+        if (Input.GetKeyDown (KeyCode.Space))
+        {
+            if (holdable)
+            {
+                // swap
+                var tmp = holdingTetrimino;
+                holdingTetrimino = fallingTetrimino;
+                fallingTetrimino = tmp;
+
+                // 親をholdにする
+                holdingTetrimino.gameObject.transform.SetParent (hold, false);
+                holdingTetrimino.reset (0, 0);
+
+                if (fallingTetrimino != null)
+                {
+                    // 親をfieldにする
+                    fallingTetrimino.gameObject.transform.SetParent (field.GetComponent <RectTransform> (), false);
+                    fallingTetrimino.reset (4, 18);
+                }
+                else
+                {
+                    // ホールドしてなかった場合は新しく召喚
+                    summon_fallingTetrimino ();
+                }
+                
+                // initialize
+                holdable = false;
+            }
+        }
 
 
         /********************************
@@ -218,9 +266,11 @@ public class GameScript : MonoBehaviour
                 Destroy (fallingTetrimino.gameObject);
 
                 // 次のテトリミノを召喚
-                fallingTetrimino = generateTetrimino (4, 18, generateRandom ());
+                summon_fallingTetrimino ();
             }
         }
+
+        hold_text.color = holdable ? new Color (1.0f, 1.0f, 1.0f) : new Color (0.5f, 0.5f, 0.5f);
 
         /********************************
         * debug

@@ -682,6 +682,18 @@ public class Tetrimino : MonoBehaviour
         return true;
     }
 
+    // Hold用にパラメーターを初期化する
+    public void reset (int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+        while (this.radius != 0)
+        {
+            rotateRight_force ();
+        }
+        updatePos ();
+    }
+
     /********************************
      * 設置
      ********************************/
