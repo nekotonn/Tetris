@@ -14,6 +14,11 @@ public class GameScript : MonoBehaviour
     [SerializeField]
     private Field field;
 
+    
+    // デバッグ情報表示
+    [SerializeField]
+    private Text debug_gametime_text;
+
     [SerializeField]
     private Text debug_radius_info;
 
@@ -139,6 +144,7 @@ public class GameScript : MonoBehaviour
             if (fallingTetrimino.canMoveLeft (field))
             {
                 fallingTetrimino.moveLeft ();
+                placetime = 0.0f;
             }
         }
         // 右キー入力で右に移動
@@ -147,6 +153,7 @@ public class GameScript : MonoBehaviour
             if (fallingTetrimino.canMoveRight (field))
             {
                 fallingTetrimino.moveRight ();
+                placetime = 0.0f;
             }
         }
         // Zキーで左回転
@@ -219,6 +226,7 @@ public class GameScript : MonoBehaviour
         * debug
         ********************************/
 
+        debug_gametime_text.text = "gametime: " + gametime.ToString ();
         debug_radius_info.text = "radius: " + fallingTetrimino.getRadius ().ToString ();
     }
 }
