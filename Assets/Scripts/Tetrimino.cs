@@ -20,7 +20,7 @@ public class Tetrimino : MonoBehaviour
 
     // テトリミノの回転角度
     // 0:0°, 1:右90°, 2:180°, 3:左90°
-    private int radius;
+    private int angle;
 
     
     // 位置を変更したあとに呼び出して更新するためのもの
@@ -33,9 +33,9 @@ public class Tetrimino : MonoBehaviour
     }
 
     // for debug
-    public int getRadius ()
+    public int getAngle ()
     {
-        return radius;
+        return this.angle;
     }
 
     
@@ -59,7 +59,7 @@ public class Tetrimino : MonoBehaviour
         this.x = x;
         this.y = y;
 
-        this.radius = 0;
+        this.angle = 0;
 
         // 位置更新
         updatePos ();
@@ -160,7 +160,7 @@ public class Tetrimino : MonoBehaviour
     // 回転リセット
     public void reset_rotation ()
     {
-        while (this.radius != 0)
+        while (this.angle != 0)
         {
             rotateRight_force ();
         }
@@ -240,14 +240,14 @@ public class Tetrimino : MonoBehaviour
         if (wall_count >= 3)
         {
             // 裏に壁があればMini
-            if (this.radius == 0)
+            if (this.angle == 0)
             {
                 if (field.isblock (this.x + 1, this.y))
                 {
                     return 1;
                 }
             }
-            else if (this.radius == 1)
+            else if (this.angle == 1)
             {
 
                 if (field.isblock (this.x, this.y + 1))
@@ -255,14 +255,14 @@ public class Tetrimino : MonoBehaviour
                     return 1;
                 }
             }
-            else if (this.radius == 2)
+            else if (this.angle == 2)
             {
                 if (field.isblock (this.x + 1, this.y + 2))
                 {
                     return 1;
                 }
             }
-            else if (this.radius == 3)
+            else if (this.angle == 3)
             {
                 if (field.isblock (this.x + 2, this.y + 1))
                 {
@@ -326,7 +326,7 @@ public class Tetrimino : MonoBehaviour
         }
 
         // 角度更新
-        this.radius = (this.radius == 0) ? 3 : this.radius - 1;
+        this.angle = (this.angle == 0) ? 3 : this.angle - 1;
     }
 
     // 強制右回転
@@ -339,7 +339,7 @@ public class Tetrimino : MonoBehaviour
         }
 
         // 角度更新
-        this.radius = (this.radius == 3) ? 0 : this.radius + 1;
+        this.angle = (this.angle == 3) ? 0 : this.angle + 1;
     }
 
 
@@ -360,19 +360,19 @@ public class Tetrimino : MonoBehaviour
             if (minotype != 'I')
             {
                 // 第1段階
-                if (this.radius == 0)
+                if (this.angle == 0)
                 {
                     ++ this.x;
                 }
-                else if (this.radius == 1)
+                else if (this.angle == 1)
                 {
                     -- this.x;
                 }
-                else if (this.radius == 2)
+                else if (this.angle == 2)
                 {
                     -- this.x;
                 }
-                else if (this.radius == 3)
+                else if (this.angle == 3)
                 {
                     ++ this.x;
                 }
@@ -380,11 +380,11 @@ public class Tetrimino : MonoBehaviour
                 if (is_hit (field))
                 {
                     // 第2段階
-                    if (this.radius == 0 || this.radius == 2)
+                    if (this.angle == 0 || this.angle == 2)
                     {
                         -- this.y;
                     }
-                    else if (this.radius == 1 || this.radius == 3)
+                    else if (this.angle == 1 || this.angle == 3)
                     {
                         ++ this.y;
                     }
@@ -395,11 +395,11 @@ public class Tetrimino : MonoBehaviour
                         this.x = backup_x;
                         this.y = backup_y;
 
-                        if (this.radius == 0 || this.radius == 2)
+                        if (this.angle == 0 || this.angle == 2)
                         {
                             this.y += 2;
                         }
-                        else if (this.radius == 1 || this.radius == 3)
+                        else if (this.angle == 1 || this.angle == 3)
                         {
                             this.y -= 2;
                         }
@@ -407,19 +407,19 @@ public class Tetrimino : MonoBehaviour
                         if (is_hit (field))
                         {
                             // 第4段階
-                            if (this.radius == 0)
+                            if (this.angle == 0)
                             {
                                 ++ this.x;
                             }
-                            else if (this.radius == 1)
+                            else if (this.angle == 1)
                             {
                                 -- this.x;
                             }
-                            else if (this.radius == 2)
+                            else if (this.angle == 2)
                             {
                                 -- this.x;
                             }
-                            else if (this.radius == 3)
+                            else if (this.angle == 3)
                             {
                                 ++ this.x;
                             }
@@ -446,19 +446,19 @@ public class Tetrimino : MonoBehaviour
             else if (minotype == 'I')
             {
                 // 第1段階
-                if (this.radius == 0)
+                if (this.angle == 0)
                 {
                     this.x += 2;
                 }
-                else if (this.radius == 1)
+                else if (this.angle == 1)
                 {
                     ++ this.x;
                 }
-                else if (this.radius == 2)
+                else if (this.angle == 2)
                 {
                     ++ this.x;
                 }
-                else if (this.radius == 3)
+                else if (this.angle == 3)
                 {
                     -- this.x;
                 }
@@ -466,19 +466,19 @@ public class Tetrimino : MonoBehaviour
                 if (is_hit (field))
                 {
                     // 第2段階
-                    if (this.radius == 0)
+                    if (this.angle == 0)
                     {
                         this.x -= 3;
                     }
-                    else if (this.radius == 1)
+                    else if (this.angle == 1)
                     {
                         this.x -= 3;
                     }
-                    else if (this.radius == 2)
+                    else if (this.angle == 2)
                     {
                         this.x -= 3;
                     }
-                    else if (this.radius == 3)
+                    else if (this.angle == 3)
                     {
                         this.x += 3;
                     }
@@ -486,21 +486,21 @@ public class Tetrimino : MonoBehaviour
                     if (is_hit (field))
                     {
                         // 第3段階
-                        if (this.radius == 0)
+                        if (this.angle == 0)
                         {
                             this.x += 3;
                             this.y += 1;
                         }
-                        else if (this.radius == 1)
+                        else if (this.angle == 1)
                         {
                             this.x += 3;
                             this.y -= 2;
                         }
-                        else if (this.radius == 2)
+                        else if (this.angle == 2)
                         {
                             -- this.y;
                         }
-                        else if (this.radius == 3)
+                        else if (this.angle == 3)
                         {
                             this.x -= 3;
                             this.y += 2;
@@ -509,22 +509,22 @@ public class Tetrimino : MonoBehaviour
                         if (is_hit (field))
                         {
                             // 第4段階
-                            if (this.radius == 0)
+                            if (this.angle == 0)
                             {
                                 this.x -= 3;
                                 this.y -= 3;
                             }
-                            else if (this.radius == 1)
+                            else if (this.angle == 1)
                             {
                                 this.x -= 3;
                                 this.y += 3;
                             }
-                            else if (this.radius == 2)
+                            else if (this.angle == 2)
                             {
                                 this.x += 3;
                                 this.y += 3;
                             }
-                            else if (this.radius == 3)
+                            else if (this.angle == 3)
                             {
                                 this.x += 3;
                                 this.y -= 3;
@@ -574,19 +574,19 @@ public class Tetrimino : MonoBehaviour
             if (minotype != 'I')
             {
                 // 第1段階
-                if (this.radius == 0)
+                if (this.angle == 0)
                 {
                     -- this.x;
                 }
-                else if (this.radius == 1)
+                else if (this.angle == 1)
                 {
                     -- this.x;
                 }
-                else if (this.radius == 2)
+                else if (this.angle == 2)
                 {
                     ++ this.x;
                 }
-                else if (this.radius == 3)
+                else if (this.angle == 3)
                 {
                     ++ this.x;
                 }
@@ -594,11 +594,11 @@ public class Tetrimino : MonoBehaviour
                 if (is_hit (field))
                 {
                     // 第2段階
-                    if (this.radius == 0 || this.radius == 2)
+                    if (this.angle == 0 || this.angle == 2)
                     {
                         -- this.y;
                     }
-                    else if (this.radius == 1 || this.radius == 3)
+                    else if (this.angle == 1 || this.angle == 3)
                     {
                         ++ this.y;
                     }
@@ -609,11 +609,11 @@ public class Tetrimino : MonoBehaviour
                         this.x = backup_x;
                         this.y = backup_y;
 
-                        if (this.radius == 0 || this.radius == 2)
+                        if (this.angle == 0 || this.angle == 2)
                         {
                             this.y += 2;
                         }
-                        else if (this.radius == 1 || this.radius == 3)
+                        else if (this.angle == 1 || this.angle == 3)
                         {
                             this.y -= 2;
                         }
@@ -621,19 +621,19 @@ public class Tetrimino : MonoBehaviour
                         if (is_hit (field))
                         {
                             // 第4段階
-                            if (this.radius == 0)
+                            if (this.angle == 0)
                             {
                                 -- this.x;
                             }
-                            else if (this.radius == 1)
+                            else if (this.angle == 1)
                             {
                                 -- this.x;
                             }
-                            else if (this.radius == 2)
+                            else if (this.angle == 2)
                             {
                                 ++ this.x;
                             }
-                            else if (this.radius == 3)
+                            else if (this.angle == 3)
                             {
                                 ++ this.x;
                             }
@@ -660,19 +660,19 @@ public class Tetrimino : MonoBehaviour
             else if (minotype == 'I')
             {
                 // 第1段階
-                if (this.radius == 0)
+                if (this.angle == 0)
                 {
                     this.x -= 2;
                 }
-                else if (this.radius == 1)
+                else if (this.angle == 1)
                 {
                     this.x -= 2;
                 }
-                else if (this.radius == 2)
+                else if (this.angle == 2)
                 {
                     -- this.x;
                 }
-                else if (this.radius == 3)
+                else if (this.angle == 3)
                 {
                     this.x += 2;
                 }
@@ -680,19 +680,19 @@ public class Tetrimino : MonoBehaviour
                 if (is_hit (field))
                 {
                     // 第2段階
-                    if (this.radius == 0)
+                    if (this.angle == 0)
                     {
                         this.x += 3;
                     }
-                    else if (this.radius == 1)
+                    else if (this.angle == 1)
                     {
                         this.x += 3;
                     }
-                    else if (this.radius == 2)
+                    else if (this.angle == 2)
                     {
                         this.x += 3;
                     }
-                    else if (this.radius == 3)
+                    else if (this.angle == 3)
                     {
                         this.x -= 3;
                     }
@@ -700,21 +700,21 @@ public class Tetrimino : MonoBehaviour
                     if (is_hit (field))
                     {
                         // 第3段階
-                        if (this.radius == 0)
+                        if (this.angle == 0)
                         {
                             this.y -= 2;
                         }
-                        else if (this.radius == 1)
+                        else if (this.angle == 1)
                         {
                             this.x -= 3;
                             this.y -= 1;
                         }
-                        else if (this.radius == 2)
+                        else if (this.angle == 2)
                         {
                             this.x -= 3;
                             this.y += 2;
                         }
-                        else if (this.radius == 3)
+                        else if (this.angle == 3)
                         {
                             this.x += 3;
                             this.y += 1;
@@ -723,22 +723,22 @@ public class Tetrimino : MonoBehaviour
                         if (is_hit (field))
                         {
                             // 第4段階
-                            if (this.radius == 0)
+                            if (this.angle == 0)
                             {
                                 this.x -= 3;
                                 this.y += 3;
                             }
-                            else if (this.radius == 1)
+                            else if (this.angle == 1)
                             {
                                 this.x += 3;
                                 this.y += 3;
                             }
-                            else if (this.radius == 2)
+                            else if (this.angle == 2)
                             {
                                 this.x += 3;
                                 this.y -= 3;
                             }
-                            else if (this.radius == 3)
+                            else if (this.angle == 3)
                             {
                                 this.x -= 3;
                                 this.y -= 3;

@@ -32,7 +32,7 @@ public class GameScript : MonoBehaviour
     private Text debug_gametime_text;
 
     [SerializeField]
-    private Text debug_radius_info;
+    private Text debug_angle_info;
     
     [SerializeField]
     private Text ren_text;
@@ -469,6 +469,6 @@ public class GameScript : MonoBehaviour
         ********************************/
 
         debug_gametime_text.text = "gametime: " + gametime.ToString ();
-        debug_radius_info.text = "radius: " + fallingTetrimino.getRadius ().ToString ();
+        debug_angle_info.text = "angle: " + fallingTetrimino.getAngle ().ToString ();
     }
 }

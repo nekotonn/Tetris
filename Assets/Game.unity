@@ -203,7 +203,7 @@ GameObject:
   - component: {fileID: 378055349}
   - component: {fileID: 378055348}
   m_Layer: 0
-  m_Name: radius_info
+  m_Name: angle_info
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -896,7 +896,7 @@ MonoBehaviour:
   hold: {fileID: 1848660899}
   hold_text: {fileID: 1978552398}
   debug_gametime_text: {fileID: 1155641176}
-  debug_radius_info: {fileID: 378055348}
+  debug_angle_info: {fileID: 378055348}
   ren_text: {fileID: 1765284505}
   mini_text: {fileID: 1417847925}
   tetris_text: {fileID: 1246371248}
