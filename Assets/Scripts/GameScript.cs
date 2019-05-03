@@ -35,12 +35,22 @@ public class GameScript : MonoBehaviour
     private Text debug_radius_info;
     
     [SerializeField]
-    private Text debug_technique_info;
+    private Text ren_text;
+
+    [SerializeField]
+    private Text mini_text;
+    
+    [SerializeField]
+    private Text tetris_text;
+
+    [SerializeField]
+    private Text back_to_back_text;
+
 
     // 定数系
     // 召喚位置
-    private const int summon_x = 4;
-    private const int summon_y = 18;
+    private const int summon_x = 3;
+    private const int summon_y = 17;
 
 
     // テトリミノ系
@@ -70,6 +80,10 @@ public class GameScript : MonoBehaviour
     private float placetime;
     private float placetimeInterval;
 
+    // 
+    private float show_special_move_time;
+    private float show_special_move_time_interval;
+
 
     // 移動制限・回転制限
     private int move_count;
@@ -86,14 +100,18 @@ public class GameScript : MonoBehaviour
 
     // 継続フラグ
     // Tetris
-    private bool Tetris;
+    private string tetris;
     // T-Spinフラグ
-    // (0:None, 1:T-Spin Mini, 2:T-Spin)
-    private int T_Spin;
+    private bool T_Spin;
+    // T-Spin Mini
+    private bool mini;
     // Back-to-Back
-    private bool Back_to_Back;
+    private bool pre_tetris;
+    private bool back_to_back;
     // REN
     private int ren;
+    // Perfect Clear
+    private bool perfect_clear;
 
 
     
@@ -175,9 +193,22 @@ public class GameScript : MonoBehaviour
 
         placetimeInterval = 1.0f;
 
+        show_special_move_time = 3.0f;
+        show_special_move_time_interval = 3.0f;
+
 
         move_limit = 14;
         rotate_limit = 14;
+
+
+        // フラグ初期化
+        tetris = "";
+        T_Spin = false;
+        mini = false;
+        pre_tetris = false;
+        back_to_back = false;
+        ren = -1;
+        perfect_clear = false;
         
 
         summon_fallingTetrimino ();
@@ -193,6 +224,7 @@ public class GameScript : MonoBehaviour
         gametime += Time.deltaTime;
         fallingtime += Time.deltaTime;
         placetime += Time.deltaTime;
+        show_special_move_time += Time.deltaTime;
 
         /********************************
         * キー入力処理
@@ -328,7 +360,23 @@ public class GameScript : MonoBehaviour
             if (! fallingTetrimino.canFall (field))
             {
                 // T-Spin判定
-                T_Spin = last_rotated ? fallingTetrimino.check_T_Spin (field) : 0;
+                switch (last_rotated ? fallingTetrimino.check_T_Spin (field) : 0)
+                {
+                    case 0:
+                        T_Spin = false;
+                        mini = false;
+                        break;
+                    case 1:
+                        T_Spin = true;
+                        mini = true;
+                        break;
+                    case 2:
+                        T_Spin = true;
+                        mini = false;
+                        break;
+                    default:
+                        break;
+                }
 
                 // 設置
                 fallingTetrimino.place (field);
@@ -338,17 +386,77 @@ public class GameScript : MonoBehaviour
 
                 // ライン消去
                 int line = field.clear_lines ();
-                
+
+                // REN判定
+                ren = line > 0 ? ren + 1 : -1;
+
                 // Tetris判定
-                Tetris = line == 4;
+                // Back-to-Back判定
+                if (line == 4)
+                {
+                    tetris = "Tetris";
+                    back_to_back = pre_tetris;
+                    pre_tetris = true;
+                    show_special_move_time = 0.0f;
+                }
+                else if (line == 3 && T_Spin)
+                {
+                    tetris = "T-Spin\nTriple";
+                    back_to_back = pre_tetris;
+                    pre_tetris = true;
+                    show_special_move_time = 0.0f;
+                }
+                else if (line == 2 && T_Spin)
+                {
+                    tetris = "T-Spin\nDouble";
+                    back_to_back = pre_tetris;
+                    pre_tetris = true;
+                    show_special_move_time = 0.0f;
+                }
+                else if (line == 1 && T_Spin)
+                {
+                    tetris = "T-Spin\nSingle";
+                    back_to_back = pre_tetris;
+                    pre_tetris = true;
+                    show_special_move_time = 0.0f;
+                }
+                else if (line > 0)
+                {
+                    tetris = "";
+                    back_to_back = false;
+                    pre_tetris = false;
+                }
+                else if (T_Spin)
+                {
+                    tetris = "T-Spin\n";
+                    show_special_move_time = 0.0f;
+                }
+
 
                 // 次のテトリミノを召喚
                 summon_fallingTetrimino ();
             }
         }
 
+
         // テキスト描画
         hold_text.color = holdable ? new Color (1.0f, 1.0f, 1.0f) : new Color (0.5f, 0.5f, 0.5f);
+        ren_text.text = ren > 0 ? ren.ToString () + "\nREN" : "";
+        
+        // テキスト描画その2
+        if (show_special_move_time < show_special_move_time_interval)
+        {
+            mini_text.gameObject.SetActive (mini);
+            tetris_text.text = tetris;
+            back_to_back_text.gameObject.SetActive (back_to_back);
+        }
+        else
+        {
+            mini_text.gameObject.SetActive (false);
+            tetris_text.text = "";
+            back_to_back_text.gameObject.SetActive (false);
+        }
+
 
         // ネクスト描画
         for (int i = 0; i < nextTetriminos.Count; ++ i)
@@ -362,6 +470,5 @@ public class GameScript : MonoBehaviour
 
         debug_gametime_text.text = "gametime: " + gametime.ToString ();
         debug_radius_info.text = "radius: " + fallingTetrimino.getRadius ().ToString ();
-        debug_technique_info.text = T_Spin == 1 ? "T-Spin Mini" : T_Spin == 2 ? "T-Spin" : Tetris ? "Tetris" : "";
     }
 }
