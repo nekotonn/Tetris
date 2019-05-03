@@ -106,7 +106,7 @@ public class GameScript : MonoBehaviour
     // T-Spin Mini
     private bool mini;
     // Back-to-Back
-    private bool pre_tetris;
+    private bool back_to_back_continue_flag;
     private bool back_to_back;
     // REN
     private int ren;
@@ -205,7 +205,7 @@ public class GameScript : MonoBehaviour
         tetris = "";
         T_Spin = false;
         mini = false;
-        pre_tetris = false;
+        back_to_back_continue_flag = false;
         back_to_back = false;
         ren = -1;
         perfect_clear = false;
@@ -395,36 +395,36 @@ public class GameScript : MonoBehaviour
                 if (line == 4)
                 {
                     tetris = "Tetris";
-                    back_to_back = pre_tetris;
-                    pre_tetris = true;
+                    back_to_back = back_to_back_continue_flag;
+                    back_to_back_continue_flag = true;
                     show_special_move_time = 0.0f;
                 }
                 else if (line == 3 && T_Spin)
                 {
                     tetris = "T-Spin\nTriple";
-                    back_to_back = pre_tetris;
-                    pre_tetris = true;
+                    back_to_back = back_to_back_continue_flag;
+                    back_to_back_continue_flag = true;
                     show_special_move_time = 0.0f;
                 }
                 else if (line == 2 && T_Spin)
                 {
                     tetris = "T-Spin\nDouble";
-                    back_to_back = pre_tetris;
-                    pre_tetris = true;
+                    back_to_back = back_to_back_continue_flag;
+                    back_to_back_continue_flag = true;
                     show_special_move_time = 0.0f;
                 }
                 else if (line == 1 && T_Spin)
                 {
                     tetris = "T-Spin\nSingle";
-                    back_to_back = pre_tetris;
-                    pre_tetris = true;
+                    back_to_back = back_to_back_continue_flag;
+                    back_to_back_continue_flag = true;
                     show_special_move_time = 0.0f;
                 }
                 else if (line > 0)
                 {
                     tetris = "";
                     back_to_back = false;
-                    pre_tetris = false;
+                    back_to_back_continue_flag = false;
                 }
                 else if (T_Spin)
                 {
