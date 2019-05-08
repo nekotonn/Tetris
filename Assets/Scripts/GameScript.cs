@@ -402,6 +402,7 @@ public class GameScript : MonoBehaviour
                 else if (line == 3 && T_Spin)
                 {
                     tetris = "T-Spin\nTriple";
+                    mini = false;
                     back_to_back = back_to_back_continue_flag;
                     back_to_back_continue_flag = true;
                     show_special_move_time = 0.0f;
@@ -409,6 +410,7 @@ public class GameScript : MonoBehaviour
                 else if (line == 2 && T_Spin)
                 {
                     tetris = "T-Spin\nDouble";
+                    mini = false;
                     back_to_back = back_to_back_continue_flag;
                     back_to_back_continue_flag = true;
                     show_special_move_time = 0.0f;
