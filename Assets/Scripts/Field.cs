@@ -44,10 +44,6 @@ public class Field : MonoBehaviour
             for (int x = 0; x < 10; ++ x)
             {
                 data [x, y] = data [x, y + 1];
-                if (data [x, y])
-                {
-                    data [x, y].moveDown ();
-                }
             }
         }
     }
@@ -74,6 +70,21 @@ public class Field : MonoBehaviour
             ;
         }
         return res;
+    }
+
+    // ライン消去後にずれたブロック位置を修正するための関数
+    public void updatePos ()
+    {
+        for (int y = 0; y < 22; ++ y)
+        {
+            for (int x = 0; x < 10; ++ x)
+            {
+                if (data [x , y])
+                {
+                    data [x, y].setPos (x , y);
+                }
+            }
+        }
     }
 
     // Start is called before the first frame update

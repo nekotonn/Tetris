@@ -169,11 +169,12 @@ public class Block : MonoBehaviour
         field.setblock (this.x, this.y, this);
     }
 
-    // ライン消去用
-    // 下に移動
-    public void moveDown ()
+    // 座標変更
+    // ライン消去時の落下用
+    public void setPos (int x, int y)
     {
-        -- this.y;
+        this.x = x;
+        this.y = y;
         updatePos ();
     }
 

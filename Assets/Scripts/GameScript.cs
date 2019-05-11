@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class GameScript : MonoBehaviour
 {
@@ -113,6 +114,7 @@ public class GameScript : MonoBehaviour
     // Perfect Clear
     private bool perfect_clear;
 
+    private bool pause;
 
     
     // テトリミノの生成
@@ -175,6 +177,18 @@ public class GameScript : MonoBehaviour
         }
     }
 
+    private IEnumerator delay_method (float waittime, Action action)
+    {
+        yield return new WaitForSeconds (waittime);
+        action ();
+    }
+
+    // waittime[sec]後にactionを実行する
+    void schedule (float waittime , Action action)
+    {
+        StartCoroutine (delay_method (waittime , action));
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -209,6 +223,8 @@ public class GameScript : MonoBehaviour
         back_to_back = false;
         ren = -1;
         perfect_clear = false;
+
+        pause = false;
         
 
         summon_fallingTetrimino ();
@@ -222,222 +238,250 @@ public class GameScript : MonoBehaviour
         ********************************/
 
         gametime += Time.deltaTime;
-        fallingtime += Time.deltaTime;
-        placetime += Time.deltaTime;
         show_special_move_time += Time.deltaTime;
 
-        /********************************
-        * キー入力処理
-        ********************************/
+        if (! pause)
+        {
+            fallingtime += Time.deltaTime;
+            placetime += Time.deltaTime;
 
-        // 上キーでハードドロップ
-        if (Input.GetKeyDown (KeyCode.UpArrow))
-        {
-            // TODO: ハードドロップ処理
-            while (fallingTetrimino.canFall (field))
+            /********************************
+            * キー入力処理
+            ********************************/
+
+            // 上キーでハードドロップ
+            if (Input.GetKeyDown (KeyCode.UpArrow))
             {
-                fallingTetrimino.fall ();
-            }
-            placetime = placetimeInterval;
-            last_rotated = false;
-        }
-        // 下キーでソフトドロップ
-        if (Input.GetKeyDown (KeyCode.DownArrow))
-        {
-            fallingtime = fallingtimeInterval = softdrop_fallingInterval;
-        }
-        if (Input.GetKeyUp (KeyCode.DownArrow))
-        {
-            fallingtime = 0.0f;
-            fallingtimeInterval = default_fallingInterval;
-        }
-        // 左キー入力で左に移動
-        if (Input.GetKeyDown (KeyCode.LeftArrow))
-        {
-            if (fallingTetrimino.canMoveLeft (field))
-            {
-                fallingTetrimino.moveLeft ();
-                placetime = 0.0f;
-                last_rotated = false;
-            }
-        }
-        // 右キー入力で右に移動
-        if (Input.GetKeyDown (KeyCode.RightArrow))
-        {
-            if (fallingTetrimino.canMoveRight (field))
-            {
-                fallingTetrimino.moveRight ();
-                placetime = 0.0f;
-                last_rotated = false;
-            }
-        }
-        // Zキーで左回転
-        if (Input.GetKeyDown (KeyCode.Z))
-        {
-            // 回転に成功した場合
-            if (fallingTetrimino.rotateLeft (field))
-            {
-                // 設置時間リセット
-                placetime = 0.0f;
-                last_rotated = true;
-            }
-        }
-        // Xキーで右回転
-        if (Input.GetKeyDown (KeyCode.X))
-        {
-            // 回転に成功した場合
-            if (fallingTetrimino.rotateRight (field))
-            {
-                // 設置時間リセット
-                placetime = 0.0f;
-                last_rotated = true;
-            }
-        }
-        // スペースキーでホールド
-        if (Input.GetKeyDown (KeyCode.Space))
-        {
-            if (holdable)
-            {
-                // ネクストの先頭にholdingを無理やり突っ込む
-                // こうすることで<s>めんどくさい</s>初期化処理をsummon_fallingTetrimino()に丸投げできる
-                if (holdingTetrimino != null)
+                // TODO: ハードドロップ処理
+                while (fallingTetrimino.canFall (field))
                 {
-                    nextTetriminos.Insert (0, holdingTetrimino);
+                    fallingTetrimino.fall ();
                 }
+                placetime = placetimeInterval;
+                last_rotated = false;
+            }
+            // 下キーでソフトドロップ
+            if (Input.GetKeyDown (KeyCode.DownArrow))
+            {
+                fallingtime = fallingtimeInterval = softdrop_fallingInterval;
+            }
+            if (Input.GetKeyUp (KeyCode.DownArrow))
+            {
+                fallingtime = 0.0f;
+                fallingtimeInterval = default_fallingInterval;
+            }
+            // 左キー入力で左に移動
+            if (Input.GetKeyDown (KeyCode.LeftArrow))
+            {
+                if (fallingTetrimino.canMoveLeft (field))
+                {
+                    fallingTetrimino.moveLeft ();
+                    placetime = 0.0f;
+                    last_rotated = false;
+                }
+            }
+            // 右キー入力で右に移動
+            if (Input.GetKeyDown (KeyCode.RightArrow))
+            {
+                if (fallingTetrimino.canMoveRight (field))
+                {
+                    fallingTetrimino.moveRight ();
+                    placetime = 0.0f;
+                    last_rotated = false;
+                }
+            }
+            // Zキーで左回転
+            if (Input.GetKeyDown (KeyCode.Z))
+            {
+                // 回転に成功した場合
+                if (fallingTetrimino.rotateLeft (field))
+                {
+                    // 設置時間リセット
+                    placetime = 0.0f;
+                    last_rotated = true;
+                }
+            }
+            // Xキーで右回転
+            if (Input.GetKeyDown (KeyCode.X))
+            {
+                // 回転に成功した場合
+                if (fallingTetrimino.rotateRight (field))
+                {
+                    // 設置時間リセット
+                    placetime = 0.0f;
+                    last_rotated = true;
+                }
+            }
+            // スペースキーでホールド
+            if (Input.GetKeyDown (KeyCode.Space))
+            {
+                if (holdable)
+                {
+                    // ネクストの先頭にholdingを無理やり突っ込む
+                    // こうすることで<s>めんどくさい</s>初期化処理をsummon_fallingTetrimino()に丸投げできる
+                    if (holdingTetrimino != null)
+                    {
+                        nextTetriminos.Insert (0, holdingTetrimino);
+                    }
 
-                // 回転リセット
-                fallingTetrimino.reset_rotation ();
+                    // 回転リセット
+                    fallingTetrimino.reset_rotation ();
 
-                // ホールド
-                holdingTetrimino = fallingTetrimino;
+                    // ホールド
+                    holdingTetrimino = fallingTetrimino;
 
-                // 親をholdにする
-                holdingTetrimino.reset (hold, 0, 0);
+                    // 親をholdにする
+                    holdingTetrimino.reset (hold, 0, 0);
 
-                // 召喚
-                summon_fallingTetrimino ();
-                
+                    // 召喚
+                    summon_fallingTetrimino ();
+                    
+                    // initialize
+                    holdable = false;
+                }
+            }
+
+
+            /********************************
+            * 時間経過処理
+            ********************************/
+
+            if (fallingtime >= fallingtimeInterval)
+            {
                 // initialize
-                holdable = false;
+                fallingtime = 0.0f;
+
+
+                // 落下処理
+                if (fallingTetrimino.canFall (field))
+                {
+                    // 落下可能な場合は落下
+                    fallingTetrimino.fall ();
+
+                    // 設置時間リセット
+                    placetime = 0.0f;
+
+                    last_rotated = false;
+                }
+                else
+                {
+                    // 設置処理は移動しました。
+                }
             }
-        }
 
 
-        /********************************
-        * 時間経過処理
-        ********************************/
-
-        if (fallingtime >= fallingtimeInterval)
-        {
-            // initialize
-            fallingtime = 0.0f;
-
-
-            // 落下処理
-            if (fallingTetrimino.canFall (field))
+            if (placetime >= placetimeInterval)
             {
-                // 落下可能な場合は落下
-                fallingTetrimino.fall ();
-
-                // 設置時間リセット
+                // initialize
                 placetime = 0.0f;
 
-                last_rotated = false;
-            }
-            else
-            {
-                // 設置処理は移動しました。
-            }
-        }
-
-
-        if (placetime >= placetimeInterval)
-        {
-            // initialize
-            placetime = 0.0f;
-
-            // 落下できない場合
-            if (! fallingTetrimino.canFall (field))
-            {
-                // T-Spin判定
-                switch (last_rotated ? fallingTetrimino.check_T_Spin (field) : 0)
+                // 落下できない場合
+                if (! fallingTetrimino.canFall (field))
                 {
-                    case 0:
-                        T_Spin = false;
+                    // T-Spin判定
+                    switch (last_rotated ? fallingTetrimino.check_T_Spin (field) : 0)
+                    {
+                        case 0:
+                            T_Spin = false;
+                            mini = false;
+                            break;
+                        case 1:
+                            T_Spin = true;
+                            mini = true;
+                            break;
+                        case 2:
+                            T_Spin = true;
+                            mini = false;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    // 設置
+                    fallingTetrimino.place (field);
+
+                    // いらなくなったテトリミノを破棄
+                    Destroy (fallingTetrimino.gameObject);
+
+                    // ライン消去
+                    int line = field.clear_lines ();
+
+                    // REN判定
+                    ren = line > 0 ? ren + 1 : -1;
+
+                    // Tetris判定
+                    // Back-to-Back判定
+                    if (line == 4)
+                    {
+                        tetris = "Tetris";
+                        back_to_back = back_to_back_continue_flag;
+                        back_to_back_continue_flag = true;
+                        show_special_move_time = 0.0f;
+                    }
+                    else if (line == 3 && T_Spin)
+                    {
+                        tetris = "T-Spin\nTriple";
                         mini = false;
-                        break;
-                    case 1:
-                        T_Spin = true;
-                        mini = true;
-                        break;
-                    case 2:
-                        T_Spin = true;
+                        back_to_back = back_to_back_continue_flag;
+                        back_to_back_continue_flag = true;
+                        show_special_move_time = 0.0f;
+                    }
+                    else if (line == 2 && T_Spin)
+                    {
+                        tetris = "T-Spin\nDouble";
                         mini = false;
-                        break;
-                    default:
-                        break;
-                }
+                        back_to_back = back_to_back_continue_flag;
+                        back_to_back_continue_flag = true;
+                        show_special_move_time = 0.0f;
+                    }
+                    else if (line == 1 && T_Spin)
+                    {
+                        tetris = "T-Spin\nSingle";
+                        back_to_back = back_to_back_continue_flag;
+                        back_to_back_continue_flag = true;
+                        show_special_move_time = 0.0f;
+                    }
+                    else if (line > 0)
+                    {
+                        tetris = "";
+                        back_to_back = false;
+                        back_to_back_continue_flag = false;
+                    }
+                    else if (T_Spin)
+                    {
+                        tetris = "T-Spin\n";
+                        show_special_move_time = 0.0f;
+                    }
 
-                // 設置
-                fallingTetrimino.place (field);
+                    // ラインを消した場合遅延させる
+                    if (line > 0)
+                    {
+                        // 停止
+                        pause = true;
 
-                // いらなくなったテトリミノを破棄
-                Destroy (fallingTetrimino.gameObject);
+                        schedule (0.5f , () => {
+                            // 再開
+                            pause = false;
+                            
+                            // フィールド修正
+                            field.updatePos ();
 
-                // ライン消去
-                int line = field.clear_lines ();
+                            // 次のテトリミノの出現も遅延させる
+                            summon_fallingTetrimino ();
+                            
+                            Debug.Log ("debug: delay function called");
+                        });
 
-                // REN判定
-                ren = line > 0 ? ren + 1 : -1;
-
-                // Tetris判定
-                // Back-to-Back判定
-                if (line == 4)
-                {
-                    tetris = "Tetris";
-                    back_to_back = back_to_back_continue_flag;
-                    back_to_back_continue_flag = true;
-                    show_special_move_time = 0.0f;
+                        fallingTetrimino = null;
+                    }
+                    else
+                    {
+                        // 次のテトリミノを召喚
+                        summon_fallingTetrimino ();
+                    }
                 }
-                else if (line == 3 && T_Spin)
-                {
-                    tetris = "T-Spin\nTriple";
-                    mini = false;
-                    back_to_back = back_to_back_continue_flag;
-                    back_to_back_continue_flag = true;
-                    show_special_move_time = 0.0f;
-                }
-                else if (line == 2 && T_Spin)
-                {
-                    tetris = "T-Spin\nDouble";
-                    mini = false;
-                    back_to_back = back_to_back_continue_flag;
-                    back_to_back_continue_flag = true;
-                    show_special_move_time = 0.0f;
-                }
-                else if (line == 1 && T_Spin)
-                {
-                    tetris = "T-Spin\nSingle";
-                    back_to_back = back_to_back_continue_flag;
-                    back_to_back_continue_flag = true;
-                    show_special_move_time = 0.0f;
-                }
-                else if (line > 0)
-                {
-                    tetris = "";
-                    back_to_back = false;
-                    back_to_back_continue_flag = false;
-                }
-                else if (T_Spin)
-                {
-                    tetris = "T-Spin\n";
-                    show_special_move_time = 0.0f;
-                }
-
-
-                // 次のテトリミノを召喚
-                summon_fallingTetrimino ();
             }
+        
         }
 
 
@@ -471,6 +515,6 @@ public class GameScript : MonoBehaviour
         ********************************/
 
         debug_gametime_text.text = "gametime: " + gametime.ToString ();
-        debug_angle_info.text = "angle: " + fallingTetrimino.getAngle ().ToString ();
+        debug_angle_info.text = fallingTetrimino == null ? "null" : "angle: " + fallingTetrimino.getAngle ().ToString ();
     }
 }
