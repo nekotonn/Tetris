@@ -492,8 +492,6 @@ public class GameScript : MonoBehaviour
                             show_special_move_time = 0.0f;
                         }
 
-                        Debug.Log (perfect_clear);
-
                         schedule (0.5f , () => {
                             // 再開
                             pause = false;
