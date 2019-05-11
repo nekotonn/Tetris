@@ -450,6 +450,7 @@ public class GameScript : MonoBehaviour
                     else if (T_Spin)
                     {
                         tetris = "T-Spin\n";
+                        back_to_back = false;
                         show_special_move_time = 0.0f;
                     }
 
@@ -468,8 +469,6 @@ public class GameScript : MonoBehaviour
 
                             // 次のテトリミノの出現も遅延させる
                             summon_fallingTetrimino ();
-                            
-                            Debug.Log ("debug: delay function called");
                         });
 
                         fallingTetrimino = null;
