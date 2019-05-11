@@ -46,6 +46,9 @@ public class GameScript : MonoBehaviour
 
     [SerializeField]
     private Text back_to_back_text;
+    
+    [SerializeField]
+    private Text gameover_text;
 
 
     // 定数系
@@ -115,6 +118,7 @@ public class GameScript : MonoBehaviour
     private bool perfect_clear;
 
     private bool pause;
+    private bool gameover;
 
     
     // テトリミノの生成
@@ -175,6 +179,9 @@ public class GameScript : MonoBehaviour
         {
             replenish_next ();
         }
+
+        // 召喚時に重なっていたらGAME OVER
+        gameover = fallingTetrimino.is_hit (field);
     }
 
     private IEnumerator delay_method (float waittime, Action action)
@@ -225,6 +232,7 @@ public class GameScript : MonoBehaviour
         perfect_clear = false;
 
         pause = false;
+        gameover = false;
         
 
         summon_fallingTetrimino ();
@@ -237,10 +245,13 @@ public class GameScript : MonoBehaviour
         * タイマーカウント処理
         ********************************/
 
-        gametime += Time.deltaTime;
+        if (! gameover)
+        {
+            gametime += Time.deltaTime;
+        }
         show_special_move_time += Time.deltaTime;
 
-        if (! pause)
+        if (! pause && ! gameover)
         {
             fallingtime += Time.deltaTime;
             placetime += Time.deltaTime;
@@ -487,6 +498,7 @@ public class GameScript : MonoBehaviour
         // テキスト描画
         hold_text.color = holdable ? new Color (1.0f, 1.0f, 1.0f) : new Color (0.5f, 0.5f, 0.5f);
         ren_text.text = ren > 0 ? ren.ToString () + "\nREN" : "";
+        gameover_text.gameObject.SetActive (gameover);
         
         // テキスト描画その2
         if (show_special_move_time < show_special_move_time_interval)

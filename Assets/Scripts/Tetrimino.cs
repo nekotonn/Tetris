@@ -184,6 +184,7 @@ public class Tetrimino : MonoBehaviour
         return false;
     }
 
+
     // 1マス落下できるかどうか
     public bool canFall (Field field)
     {
