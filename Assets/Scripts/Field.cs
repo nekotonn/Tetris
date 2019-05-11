@@ -28,6 +28,22 @@ public class Field : MonoBehaviour
         return data [x, y] != null;
     }
 
+    // すべてnullかどうか
+    public bool is_perfect_clear ()
+    {
+        for (int y = 0; y < 22; ++ y)
+        {
+            for (int x = 0; x < 10; ++ x)
+            {
+                if (data [x, y] != null)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public void clear_line_1 (int y_)
     {
         int y = y_;

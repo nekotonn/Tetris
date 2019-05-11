@@ -48,6 +48,9 @@ public class GameScript : MonoBehaviour
     private Text back_to_back_text;
     
     [SerializeField]
+    private Text perfect_clear_text;
+
+    [SerializeField]
     private Text gameover_text;
 
 
@@ -483,6 +486,14 @@ public class GameScript : MonoBehaviour
                         // 停止
                         pause = true;
 
+                        // パフェ判定
+                        if (perfect_clear = field.is_perfect_clear ())
+                        {
+                            show_special_move_time = 0.0f;
+                        }
+
+                        Debug.Log (perfect_clear);
+
                         schedule (0.5f , () => {
                             // 再開
                             pause = false;
@@ -518,12 +529,14 @@ public class GameScript : MonoBehaviour
             mini_text.gameObject.SetActive (mini);
             tetris_text.text = tetris;
             back_to_back_text.gameObject.SetActive (back_to_back);
+            perfect_clear_text.gameObject.SetActive (perfect_clear);
         }
         else
         {
             mini_text.gameObject.SetActive (false);
             tetris_text.text = "";
             back_to_back_text.gameObject.SetActive (false);
+            perfect_clear_text.gameObject.SetActive (false);
         }
 
 
@@ -537,7 +550,8 @@ public class GameScript : MonoBehaviour
         * debug
         ********************************/
 
-        debug_gametime_text.text = "gametime: " + gametime.ToString ();
-        debug_angle_info.text = fallingTetrimino == null ? "null" : "angle: " + fallingTetrimino.getAngle ().ToString ();
+        debug_gametime_text.text = "gametime: " + gametime.ToString ("f4");
+        debug_angle_info.gameObject.SetActive (false);
+        // debug_angle_info.text = fallingTetrimino == null ? "null" : "angle: " + fallingTetrimino.getAngle ().ToString ();
     }
 }
