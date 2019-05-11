@@ -251,6 +251,18 @@ public class GameScript : MonoBehaviour
         }
         show_special_move_time += Time.deltaTime;
 
+        /********************************
+        * ゲームオーバー時処理
+        ********************************/
+
+        if (gameover)
+        {
+            if (Input.GetKeyDown (KeyCode.Return))
+            {
+                Application.LoadLevel (0);
+            }
+        }
+
         if (! pause && ! gameover)
         {
             fallingtime += Time.deltaTime;
