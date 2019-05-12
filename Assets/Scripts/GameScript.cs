@@ -46,6 +46,9 @@ public class GameScript : MonoBehaviour
 
     [SerializeField]
     private Text back_to_back_text;
+
+    [SerializeField]
+    private Text score_text;
     
     [SerializeField]
     private Text perfect_clear_text;
@@ -122,6 +125,11 @@ public class GameScript : MonoBehaviour
 
     private bool pause;
     private bool gameover;
+
+    // 火力
+    private int power;
+    // スコア
+    private int score;
 
     
     // テトリミノの生成
@@ -442,6 +450,8 @@ public class GameScript : MonoBehaviour
                         tetris = "Tetris";
                         back_to_back = back_to_back_continue_flag;
                         back_to_back_continue_flag = true;
+                        power = 4;
+                        power += back_to_back ? 1 : 0;
                         show_special_move_time = 0.0f;
                     }
                     else if (line == 3 && T_Spin)
@@ -450,6 +460,8 @@ public class GameScript : MonoBehaviour
                         mini = false;
                         back_to_back = back_to_back_continue_flag;
                         back_to_back_continue_flag = true;
+                        power = 6;
+                        power += back_to_back ? 1 : 0;
                         show_special_move_time = 0.0f;
                     }
                     else if (line == 2 && T_Spin)
@@ -458,6 +470,8 @@ public class GameScript : MonoBehaviour
                         mini = false;
                         back_to_back = back_to_back_continue_flag;
                         back_to_back_continue_flag = true;
+                        power = 4;
+                        power += back_to_back ? 1 : 0;
                         show_special_move_time = 0.0f;
                     }
                     else if (line == 1 && T_Spin)
@@ -465,6 +479,8 @@ public class GameScript : MonoBehaviour
                         tetris = "T-Spin\nSingle";
                         back_to_back = back_to_back_continue_flag;
                         back_to_back_continue_flag = true;
+                        power = mini ? 0 : 1;
+                        power += back_to_back ? 1 : 0;
                         show_special_move_time = 0.0f;
                     }
                     else if (line > 0)
@@ -472,12 +488,18 @@ public class GameScript : MonoBehaviour
                         tetris = "";
                         back_to_back = false;
                         back_to_back_continue_flag = false;
+                        power = line - 1;
                     }
                     else if (T_Spin)
                     {
                         tetris = "T-Spin\n";
                         back_to_back = false;
                         show_special_move_time = 0.0f;
+                        power = 0;
+                    }
+                    else
+                    {
+                        power = 0;
                     }
 
                     // ラインを消した場合遅延させる
@@ -486,11 +508,18 @@ public class GameScript : MonoBehaviour
                         // 停止
                         pause = true;
 
+                        // RENによる火力ボーナス
+                        power += (ren > 0 ? 1 : 0) + (ren > 3 ? 1 : 0) + (ren > 5 ? 1 : 0) + (ren > 7 ? 1 : 0) + (ren > 10 ? 1 : 0);
+
                         // パフェ判定
                         if (perfect_clear = field.is_perfect_clear ())
                         {
+                            power = 10;
                             show_special_move_time = 0.0f;
                         }
+
+                        // スコア加算
+                        score += power;
 
                         schedule (0.5f , () => {
                             // 再開
@@ -520,6 +549,7 @@ public class GameScript : MonoBehaviour
         hold_text.color = holdable ? new Color (1.0f, 1.0f, 1.0f) : new Color (0.5f, 0.5f, 0.5f);
         ren_text.text = ren > 0 ? ren.ToString () + "\nREN" : "";
         gameover_text.gameObject.SetActive (gameover);
+        score_text.text = "score: " + (score == 0 ? "0" : score.ToString () + "000");
         
         // テキスト描画その2
         if (show_special_move_time < show_special_move_time_interval)
