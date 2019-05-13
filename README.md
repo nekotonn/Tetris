@@ -4,7 +4,8 @@
 
 ## 遊べる
 
-遊べます。→[URL](https://nekotonn.github.io/Tetris/Build)
+遊べます。→[URL](https://nekotonn.github.io/Tetris/Build)  
+キーボードが必要です。
 
 ### 操作
 
@@ -16,10 +17,5 @@
 - Xキー: 右回転
 - SPACEキー: ホールド
 - Enterキー: GAMEOVERからの復帰
-
-## 既知のバグ
-
-- ソフトドロップキー押しっぱなしでライン消去し、ライン消去アニメーション中にキーを離すと常時ソフトドロップ状態になる
-- 操作性が悪い
 
 
