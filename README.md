@@ -20,5 +20,5 @@
 
 ## その他
 
-SRSについてはよくわからなかったので、[](https://tetrisch.github.io/main/srs.html)を参考にしました。
+SRSについてはよくわからなかったので、[https://tetrisch.github.io/main/srs.html](https://tetrisch.github.io/main/srs.html)を参考にしました。
 
