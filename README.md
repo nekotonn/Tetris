@@ -18,4 +18,7 @@
 - SPACEキー: ホールド
 - Enterキー: GAMEOVERからの復帰
 
+## その他
+
+SRSについてはよくわからなかったので、[](https://tetrisch.github.io/main/srs.html)を参考にしました。
 
